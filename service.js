@@ -3,11 +3,11 @@ const app = express();
 const fs = require('fs');
 const cors = require('cors');
 
-app.use(cors({origin: '*'}));
+startService();
 
-test();
+async function startService() {
 
-async function test() {
+    app.use(cors({origin: '*'}));
 
     app.get("/*", (request, response) => {
         fs.readFile(`extensionScripts${request.url}`, (error, data) => {
@@ -20,16 +20,22 @@ async function test() {
     });
 
     app.post("/", async (req, res) => {
-        const userdata = JSON.parse(await kullaniciBilgisiniGetir(req));
-        if (kullaniciBilgileriDogruMu(userdata.email, userdata.pass)) {
-            console.log(`${userdata.email} giriş yapıtı.`) // todo: giriş yapan ve yapmaya çalışılan tüm requestleri logla.
-            res.send(userdata.email);
+        const uzantidanGelenKullanici = JSON.parse(await uzantidanGonderilenKullaniciBilgileriniCek(req));
+        let kullanici;
+        await kayitliKullaniciyiCek(uzantidanGelenKullanici.email, uzantidanGelenKullanici.pass).then(kayitliKullanici => kullanici = kayitliKullanici);
+
+        if (kullanici) {
+            console.log(`${kullanici.email} ${kullanici.phone.model} giriş yaptı.`) // todo: giriş yapan ve yapmaya çalışılan tüm requestleri logla.
+            return res.send(kullanici);
         }
-        res.status(201).send('kullanıcı adı veya parola hatalı!');
+        console.log("giriş yapamadı.")
+        res.status(401).send('kullanıcı adı veya parola hatalı!');
     });
 }
+function phoneScriptDosyaYolunuGonder(phone){
 
-function kullaniciBilgileriDogruMu(useremail, userpass) {
+}
+function kayitliKullaniciyiCek(useremail, userpass) {
 
     return new Promise((result, reject) => {
         fs.readFile("users.json", (error, data) => {
@@ -38,14 +44,13 @@ function kullaniciBilgileriDogruMu(useremail, userpass) {
                 return;
             }
             const kullanicilar = JSON.parse(data.toString()).users;
-            const buBilgilereAitKacKullaniciVar = kullanicilar.filter(kullanici => kullanici.email === useremail && kullanici.pass === userpass).length;
-            result(); // todo:Burada kaldım.
+            result(kullanicilar.find(kullanici => (kullanici.email === useremail && kullanici.pass === userpass)));
         });
     });
 
 }
 
-function kullaniciBilgisiniGetir(request) {
+function uzantidanGonderilenKullaniciBilgileriniCek(request) {
     return new Promise((resolve) => {
         request.on('data', chunk => {
             resolve(chunk.toString());
@@ -54,5 +59,6 @@ function kullaniciBilgisiniGetir(request) {
 }
 
 app.listen(3000);
+
 
 

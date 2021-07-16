@@ -1,1 +1,0 @@
-console.log("SIP T30 Çalıştı....")

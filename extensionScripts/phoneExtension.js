@@ -1,4 +1,3 @@
-
 (function () {
     let telefon = kayitliTelefonuBul();
     if (telefon === undefined) {
@@ -13,17 +12,19 @@
 
 }());
 
-function kullaniciGirisIslemleri(telefon){
+function kullaniciGirisIslemleri(telefon) {
 
     let email = prompt('Kullanıcı Adı');
     let pass = prompt('Parola');
+    let phone = JSON.stringify(telefon)
 
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
     var raw = JSON.stringify({
         "email": email,
-        "pass": pass
+        "pass": pass,
+        "phone": phone
     });
 
     var requestOptions = {
@@ -33,29 +34,32 @@ function kullaniciGirisIslemleri(telefon){
     };
     fetch(serverURL, requestOptions)
         .then(response => {
-            if ( response.status === 201 ){
-                alert(response.body);
-            }
-            else if ( response.status !== 200 ){
+            if (response.status === 401) {
+                return response.text();
+
+            } else if (response.status !== 200) {
                 alert("Giriş Başarısız.");
             }
             return response.json();
         })
         .then(result => {
+            alert(result.email);
+            alert(result.pass);
             //telefonModelineGoreUzakScriptiEkle(telefon);
         })
-        .catch(error => console.log('error', error));
+        .catch(error => console.error('error', error));
 
 }
 
 
 function kayitliTelefonuBul() {
     const kayitlitelefon = read_cookie("kayitli_telefon");
-    if ( kayitlitelefon )
+    if (kayitlitelefon)
         return JSON.parse(kayitlitelefon)
 
     return undefined;
 }
+
 function sayfaninHangiTelefonaAitOldBul() {
 
     let telefon = {};
@@ -64,7 +68,8 @@ function sayfaninHangiTelefonaAitOldBul() {
         telefon.marka = "yealink";
         telefon.model = "sip-t30";
     }
-
+    telefon.marka = "yealink";
+    telefon.model = "sip-t30";
 
     const markaTanimliMi = !telefon.marka;
     const modelTanimliMi = !telefon.model;
@@ -76,9 +81,11 @@ function sayfaninHangiTelefonaAitOldBul() {
         return telefon;
     }
 }
+
 function telefonModelineGoreUzakScriptiEkle(telefon) {
     sayfayaScriptEkle(`${serverURL}/${telefon.marka}-${telefon.model}.js`);
 }
+
 function read_cookie(kayityeri) {
 
     let cerez_degeri;
@@ -90,6 +97,7 @@ function read_cookie(kayityeri) {
         }
     }
 }
+
 function save_cookie(kayityeri, veri) {
     document.cookie = (kayityeri + "=" + veri)
 }
