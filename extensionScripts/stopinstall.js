@@ -11,4 +11,5 @@ function save_cookie(kayityeri,veri){
     document.cookie = (kayityeri+"="+veri)
 }
 
+//todo: otomatik kullanıcı girişini bu sayfada kapat.
 

@@ -1,4 +1,5 @@
 (function () {
+    //todo:otomatik kullanıcı girişi ekle.
     let telefon = kayitliTelefonuBul();
     if (telefon === undefined) {
         try {
@@ -7,50 +8,62 @@
             alert(`• ${e.message}`);
         }
     }
-
-    kullaniciGirisIslemleri(telefon);
-
+    if (telefon !== undefined) {
+        kullaniciGirisIslemleri(telefon);
+    }
 }());
 
 function kullaniciGirisIslemleri(telefon) {
 
     let email = prompt('Kullanıcı Adı');
     let pass = prompt('Parola');
-    let phone = JSON.stringify(telefon)
 
-    var myHeaders = new Headers();
+    const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
-    var raw = JSON.stringify({
+    const raw = JSON.stringify({
         "email": email,
         "pass": pass,
-        "phone": phone
+        "phone": JSON.stringify(telefon)
     });
 
-    var requestOptions = {
+    const requestOptions = {
         method: 'POST',
         headers: myHeaders,
         body: raw
     };
-    fetch(serverURL, requestOptions)
+    fetch(serviceURL, requestOptions)
         .then(response => {
+
             if (response.status === 401) {
                 return response.text();
 
             } else if (response.status !== 200) {
-                alert("Giriş Başarısız.");
+                throw new Error(`Hata (${response.status}) : Giriş Başarısız.`);
             }
-            return response.json();
+
+            return response.text();
         })
         .then(result => {
-            alert(result.email);
-            alert(result.pass);
-            //telefonModelineGoreUzakScriptiEkle(telefon);
+            if (result) {
+                sayfayaDinamikScriptEkle(result)
+            }
         })
-        .catch(error => console.error('error', error));
+        .catch(error => {
+            alert(error);
+            console.error('error', error)
+        });
 
 }
 
+function sayfayaDinamikScriptEkle(script) {
+    const head = document.getElementsByTagName("head")[0];
+    if (head) {
+        let element = document.createElement("script");
+        element.innerHTML = script;
+        head.appendChild(element);
+    }
+}
 
 function kayitliTelefonuBul() {
     const kayitlitelefon = read_cookie("kayitli_telefon");
@@ -70,7 +83,6 @@ function sayfaninHangiTelefonaAitOldBul() {
     }
     telefon.marka = "yealink";
     telefon.model = "sip-t30";
-
     const markaTanimliMi = !telefon.marka;
     const modelTanimliMi = !telefon.model;
 
@@ -80,10 +92,6 @@ function sayfaninHangiTelefonaAitOldBul() {
         save_cookie("kayitli_telefon", JSON.stringify(telefon));
         return telefon;
     }
-}
-
-function telefonModelineGoreUzakScriptiEkle(telefon) {
-    sayfayaScriptEkle(`${serverURL}/${telefon.marka}-${telefon.model}.js`);
 }
 
 function read_cookie(kayityeri) {

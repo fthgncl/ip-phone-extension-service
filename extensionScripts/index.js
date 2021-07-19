@@ -1,5 +1,4 @@
-const serverURL = "http://localhost:3000";
-
+const serviceURL = "http://localhost:3000";
 (function () {
 
     if (!kurulumAsamasindaMi())
@@ -9,7 +8,7 @@ const serverURL = "http://localhost:3000";
     if (!sayfaIlkDefaMiYuklendi())
         return;
 
-    sayfayaScriptEkle(`${serverURL}/phoneExtension.js`);
+    sayfayaScriptEkle(`${serviceURL}/phoneExtension.js`);
 
 }());
 
@@ -52,5 +51,4 @@ function sayfayaScriptEkle(scriptURL) {
         head.appendChild(element);
     }
 }
-
 

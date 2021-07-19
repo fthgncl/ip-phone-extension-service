@@ -1,8 +1,10 @@
-{
-  "users": [
-    {
-      "email": "fthgncl@tecmony.com",
-      "pass": "1"
-    }
-  ]
-}
+[
+  {
+    "email": "fthgncl@tecmony.com",
+    "pass": "1"
+  },
+  {
+    "email": "1",
+    "pass": "1"
+  }
+]

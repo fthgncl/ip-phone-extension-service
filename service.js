@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const cors = require('cors');
-
 startService();
 
 async function startService() {
@@ -20,31 +19,56 @@ async function startService() {
     });
 
     app.post("/", async (req, res) => {
-        const uzantidanGelenKullanici = JSON.parse(await uzantidanGonderilenKullaniciBilgileriniCek(req));
-        let kullanici;
-        await kayitliKullaniciyiCek(uzantidanGelenKullanici.email, uzantidanGelenKullanici.pass).then(kayitliKullanici => kullanici = kayitliKullanici);
+        const kullanici = JSON.parse(await uzantidanGonderilenKullaniciBilgileriniCek(req));
 
-        if (kullanici) {
-            console.log(`${kullanici.email} ${kullanici.phone.model} giriş yaptı.`) // todo: giriş yapan ve yapmaya çalışılan tüm requestleri logla.
-            return res.send(kullanici);
+        let kullaniciMevcutMu;
+        await kayitliKullaniciyiCek(kullanici.email, kullanici.pass)
+            .then(kullaniciVarligi => kullaniciMevcutMu = kullaniciVarligi);
+
+        const phone = telefon = JSON.parse(kullanici.phone);
+
+        if (kullaniciMevcutMu) {
+            logKaydiEkle(`${kullanici.email} giriş yaptı. Telefon bilgileri | Telefon : ${phone.marka} , ${phone.model}`);
+            let phoneScriptData = await telefonScriptDosyasiniCek(phone);
+            return res.send(phoneScriptData);
         }
-        console.log("giriş yapamadı.")
+        logKaydiEkle(`${kullanici.email} hatalı giriş denemesi.`);
         res.status(401).send('kullanıcı adı veya parola hatalı!');
     });
 }
-function phoneScriptDosyaYolunuGonder(phone){
+function logKaydiEkle(bilgi){
+    fs.appendFile("logs.txt",`\n${Date()} | ${bilgi}`,err=>{
+       if (err){
+           throw err;
+       }
+    });
+
 
 }
+function telefonScriptDosyasiniCek(telefon) {
+
+    return new Promise(result => {
+        fs.readFile(`extensionScripts/phoneScripts/${telefon.marka}-${telefon.model}.js`, (error, data) => {
+            if (error) {
+                console.error(error);
+            }
+            result(data);
+        })
+    });
+
+}
+
 function kayitliKullaniciyiCek(useremail, userpass) {
 
-    return new Promise((result, reject) => {
+    return new Promise((result) => {
         fs.readFile("users.json", (error, data) => {
             if (error) {
                 console.error(error);
                 return;
             }
-            const kullanicilar = JSON.parse(data.toString()).users;
-            result(kullanicilar.find(kullanici => (kullanici.email === useremail && kullanici.pass === userpass)));
+            const kullanicilar = JSON.parse(data.toString());
+            const kullaniciMevcutMu = kullanicilar.find(kullanici => (kullanici.email === useremail && kullanici.pass === userpass)) !== undefined;
+            result(kullaniciMevcutMu);
         });
     });
 
