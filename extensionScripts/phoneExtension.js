@@ -81,7 +81,7 @@ function sayfaninHangiTelefonaAitOldBul() {
         telefon.marka = "yealink";
         telefon.model = "sip-t30";
     }
-    telefon.marka = "yealink";
+    telefon.marka = "yealink"; //todo:burası kaldırılacak.
     telefon.model = "sip-t30";
     const markaTanimliMi = !telefon.marka;
     const modelTanimliMi = !telefon.model;

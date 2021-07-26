@@ -1,10 +1,11 @@
-{
-  "compilerOptions": {
-    "module": "commonjs",
-    "target": "es5",
-    "sourceMap": true
+[
+  //todo: otomatik kullanıcı girişi için düzeltilecek.
+  {
+    "email": "fthgncl@tecmony.com",
+    "pass": "1"
   },
-  "exclude": [
-    "node_modules"
-  ]
-}
+  {
+    "email": "1",
+    "pass": "1"
+  }
+]

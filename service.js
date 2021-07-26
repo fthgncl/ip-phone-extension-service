@@ -19,7 +19,7 @@ async function startService() {
     });
 
     app.post("/", async (req, res) => {
-        const kullanici = JSON.parse(await uzantidanGonderilenKullaniciBilgileriniCek(req));
+        const kullanici = await uzantidanGonderilenKullaniciBilgileriniCek(req);
 
         let kullaniciMevcutMu;
         await kayitliKullaniciyiCek(kullanici.email, kullanici.pass)
@@ -28,23 +28,28 @@ async function startService() {
         const phone = telefon = JSON.parse(kullanici.phone);
 
         if (kullaniciMevcutMu) {
-            logKaydiEkle(`${kullanici.email} giriş yaptı. Telefon bilgileri | Telefon : ${phone.marka} , ${phone.model}`);
+            logKaydiEkle(`${kullanici.email} kullanıcı adı ile giriş yaptıldı. Tesbit edilen telefon ${phone.marka} ${phone.model}`);
             let phoneScriptData = await telefonScriptDosyasiniCek(phone);
             return res.send(phoneScriptData);
         }
-        logKaydiEkle(`${kullanici.email} hatalı giriş denemesi.`);
+        logKaydiEkle(`${kullanici.email} kullanıcı adı ile giriş yapılmaya çalışıldı.`, "HATALI GİRİŞ");
         res.status(401).send('kullanıcı adı veya parola hatalı!');
     });
 }
-function logKaydiEkle(bilgi){
-    fs.appendFile("logs.txt",`\n${Date()} | ${bilgi}`,err=>{
-       if (err){
-           throw err;
-       }
+
+function logKaydiEkle(bilgi, logBasligi = '') {
+    let tarih = new Date();
+    (logBasligi !== '' ) && (logBasligi = `[${logBasligi}]`);
+    let tarihYazisi = `[Tarih : ${tarih.getDate()}/${tarih.getMonth() + 1}/${tarih.getFullYear()} - ${tarih.getHours()}:${tarih.getMinutes()}]`
+    fs.appendFile("logs.txt", `\n${tarihYazisi} ${logBasligi}\n${bilgi}\n`, err => {
+        if (err) {
+            throw err;
+        }
     });
 
 
 }
+
 function telefonScriptDosyasiniCek(telefon) {
 
     return new Promise(result => {
@@ -77,7 +82,7 @@ function kayitliKullaniciyiCek(useremail, userpass) {
 function uzantidanGonderilenKullaniciBilgileriniCek(request) {
     return new Promise((resolve) => {
         request.on('data', chunk => {
-            resolve(chunk.toString());
+            resolve(JSON.parse(chunk.toString()));
         });
     }).catch(err => console.log(err));
 }
