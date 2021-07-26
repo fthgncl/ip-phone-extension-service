@@ -1,113 +1,139 @@
 (function () {
-    //todo:otomatik kullanıcı girişi ekle.
-    let telefon = kayitliTelefonuBul();
-    if (telefon === undefined) {
-        try {
-            telefon = sayfaninHangiTelefonaAitOldBul();
-        } catch (e) {
-            alert(`• ${e.message}`);
-        }
+  //todo:otomatik kullanıcı girişi ekle.
+  let telefon = kayitliTelefonuBul();
+  if (telefon === undefined) {
+    try {
+      telefon = sayfaninHangiTelefonaAitOldBul();
+    } catch (e) {
+      alert(`• ${e.message}`);
     }
-    if (telefon !== undefined) {
-        kullaniciGirisIslemleri(telefon);
-    }
+  }
+  if (telefon !== undefined) {
+    kullaniciGirisIslemleri(telefon);
+  }
 }());
 
-function kullaniciGirisIslemleri(telefon) {
+function manuel_GirisYap() {
 
-    let email = prompt('Kullanıcı Adı');
-    let pass = prompt('Parola');
+}
 
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
+function token_GirisYap() {
+  const requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: JSON.stringify({token: tokenGetir()})
+  };
 
-    const raw = JSON.stringify({
-        "email": email,
-        "pass": pass,
-        "phone": JSON.stringify(telefon)
+  fetch(`${serviceURL}/login`, requestOptions)
+    .then()
+
+
+}
+
+function kullaniciGirisIslemleri(phone) {
+
+  let email = prompt('Kullanıcı Adı');
+  let pass = prompt('Parola');
+
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+
+  const raw = JSON.stringify({
+    email,
+    pass,
+    phone
+  });
+
+  const requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: raw
+  };
+  fetch(`${serviceURL}/login`, requestOptions)
+    .then(response => {
+
+      if (response.status === 401) {
+        return response.text();
+
+      } else if (response.status !== 200) {
+        throw new Error(`Hata (${response.status}) : Giriş Başarısız.`);
+      }
+
+      return response.json();
+    })
+    .then(result => {
+      if (result) {
+        tokenKaydet(result.token)
+        sayfayaDinamikScriptEkle(result.script)
+      }
+    })
+    .catch(error => {
+      alert(error);
+      console.error('error', error)
     });
 
-    const requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        body: raw
-    };
-    fetch(serviceURL, requestOptions)
-        .then(response => {
+}
 
-            if (response.status === 401) {
-                return response.text();
+function tokenGetir() {
+  return read_cookie("token");
+}
 
-            } else if (response.status !== 200) {
-                throw new Error(`Hata (${response.status}) : Giriş Başarısız.`);
-            }
-
-            return response.text();
-        })
-        .then(result => {
-            if (result) {
-                sayfayaDinamikScriptEkle(result)
-            }
-        })
-        .catch(error => {
-            alert(error);
-            console.error('error', error)
-        });
-
+function tokenKaydet(token) {
+  save_cookie("token", token);
 }
 
 function sayfayaDinamikScriptEkle(script) {
-    const head = document.getElementsByTagName("head")[0];
-    if (head) {
-        let element = document.createElement("script");
-        element.innerHTML = script;
-        head.appendChild(element);
-    }
+  const head = document.getElementsByTagName("head")[0];
+  if (head) {
+    let element = document.createElement("script");
+    element.innerHTML = script;
+    head.appendChild(element);
+  }
 }
 
 function kayitliTelefonuBul() {
-    const kayitlitelefon = read_cookie("kayitli_telefon");
-    if (kayitlitelefon)
-        return JSON.parse(kayitlitelefon)
+  const kayitlitelefon = read_cookie("kayitli_telefon");
+  if (kayitlitelefon)
+    return JSON.parse(kayitlitelefon)
 
-    return undefined;
+  return undefined;
 }
 
 function sayfaninHangiTelefonaAitOldBul() {
 
-    let telefon = {};
+  let telefon = {};
 
-    if (document.getElementById("idUsername") !== null && document.title === "Yealink T30 Phone") {      //### SIP-T30 Modeli Algılama
-        telefon.marka = "yealink";
-        telefon.model = "sip-t30";
-    }
-    telefon.marka = "yealink"; //todo:burası kaldırılacak.
+  if (document.getElementById("idUsername") !== null && document.title === "Yealink T30 Phone") {      //### SIP-T30 Modeli Algılama
+    telefon.marka = "yealink";
     telefon.model = "sip-t30";
-    const markaTanimliMi = !telefon.marka;
-    const modelTanimliMi = !telefon.model;
+  }
+  telefon.marka = "yealink"; //todo:burası kaldırılacak.
+  telefon.model = "sip-t30";
+  const markaTanimliMi = !telefon.marka;
+  const modelTanimliMi = !telefon.model;
 
-    if (markaTanimliMi || modelTanimliMi) {
-        throw new Error("Telefon arayüz giriş sayfası tesbit edilemedi.");
-    } else {
-        save_cookie("kayitli_telefon", JSON.stringify(telefon));
-        return telefon;
-    }
+  if (markaTanimliMi || modelTanimliMi) {
+    throw new Error("Telefon arayüz giriş sayfası tesbit edilemedi.");
+  } else {
+    save_cookie("kayitli_telefon", JSON.stringify(telefon));
+    return telefon;
+  }
 }
 
 function read_cookie(kayityeri) {
 
-    let cerez_degeri;
-    const cerezler = document.cookie.split("; ");
-    for (let i = 0; i < cerezler.length; i++) {
-        cerez_degeri = cerezler[i].split("=");
-        if (kayityeri === cerez_degeri[0]) {
-            return cerez_degeri[1];
-        }
+  let cerez_degeri;
+  const cerezler = document.cookie.split("; ");
+  for (let i = 0; i < cerezler.length; i++) {
+    cerez_degeri = cerezler[i].split("=");
+    if (kayityeri === cerez_degeri[0]) {
+      return cerez_degeri[1];
     }
+  }
 }
 
 function save_cookie(kayityeri, veri) {
-    document.cookie = (kayityeri + "=" + veri)
+  document.cookie = (kayityeri + "=" + veri)
 }
 
 

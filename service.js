@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+
 startService();
 
 async function startService() {
@@ -18,8 +20,10 @@ async function startService() {
         });
     });
 
-    app.post("/", async (req, res) => {
+    app.post("/login", async (req, res) => {
         const kullanici = await uzantidanGonderilenKullaniciBilgileriniCek(req);
+        request.on('data', chunk => JSON.parse(chunk.toString()) )
+
 
         let kullaniciMevcutMu;
         await kayitliKullaniciyiCek(kullanici.email, kullanici.pass)
@@ -28,13 +32,17 @@ async function startService() {
         const phone = telefon = JSON.parse(kullanici.phone);
 
         if (kullaniciMevcutMu) {
+            token = await tokenUret(kullanici);
             logKaydiEkle(`${kullanici.email} kullanıcı adı ile giriş yaptıldı. Tesbit edilen telefon ${phone.marka} ${phone.model}`);
             let phoneScriptData = await telefonScriptDosyasiniCek(phone);
-            return res.send(phoneScriptData);
+            return res.send({token,script:phoneScriptData});
         }
         logKaydiEkle(`${kullanici.email} kullanıcı adı ile giriş yapılmaya çalışıldı.`, "HATALI GİRİŞ");
         res.status(401).send('kullanıcı adı veya parola hatalı!');
     });
+}
+function tokenUret(user,gecerlilikSuresi = "300s"){
+    return jwt.sign(user, 'api_token_key', { expiresIn: gecerlilikSuresi });
 }
 
 function logKaydiEkle(bilgi, logBasligi = '') {
@@ -80,9 +88,12 @@ function kayitliKullaniciyiCek(useremail, userpass) {
 }
 
 function uzantidanGonderilenKullaniciBilgileriniCek(request) {
+
     return new Promise((resolve) => {
         request.on('data', chunk => {
-            resolve(JSON.parse(chunk.toString()));
+            const user = JSON.parse(chunk.toString());
+
+            resolve(user);
         });
     }).catch(err => console.log(err));
 }
