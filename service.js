@@ -34,7 +34,7 @@ async function startService() {
         .then(data => user = data)
         .catch(error => console.error(error))
     }
-
+ 
   });
 }
 
