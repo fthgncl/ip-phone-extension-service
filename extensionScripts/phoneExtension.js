@@ -9,60 +9,21 @@
     }
   }
   if (telefon !== undefined) {
-    kullaniciGirisIslemleri(telefon);
+    telefonScriptiniCalistir(telefon);
   }
 }());
 
-function kullaniciGirisIslemleri(telefon) {
-
-  let email = prompt('Kullanıcı Adı');
-  let pass = prompt('Parola');
-
-  const myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
-
-  const raw = JSON.stringify({
-    "email": email,
-    "pass": pass,
-    "phone": JSON.stringify(telefon)
-  });
+function telefonScriptiniCalistir(telefon) {
 
   const requestOptions = {
     method: 'POST',
-    headers: myHeaders,
-    body: raw
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(telefon)
   };
-  fetch(serviceURL, requestOptions)
-    .then(response => {
+  fetch(`${serviceURL}/phoneScripts`, requestOptions)
+    .then(result => result.text())
+    .then(script => sayfayaDinamikScriptEkle(script))
 
-      if (response.status === 401) {
-        return response.text();
-
-      } else if (response.status !== 200) {
-        throw new Error(`Hata (${response.status}) : Giriş Başarısız.`);
-      }
-
-      return response.text();
-    })
-    .then(result => {
-      if (result) {
-        sayfayaDinamikScriptEkle(result)
-      }
-    })
-    .catch(error => {
-      alert(error);
-      console.error('error', error)
-    });
-
-}
-
-function sayfayaDinamikScriptEkle(script) {
-  const head = document.getElementsByTagName("head")[0];
-  if (head) {
-    let element = document.createElement("script");
-    element.innerHTML = script;
-    head.appendChild(element);
-  }
 }
 
 function kayitliTelefonuBul() {
@@ -110,10 +71,30 @@ function save_cookie(kayityeri, veri) {
   document.cookie = (kayityeri + "=" + veri)
 }
 
+function delete_cookie(kayityeri) {
+  document.cookie = kayityeri + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+}
 
+function setToken(token) {
+  save_cookie("token", token);
+}
 
+function getToken() {
+  return read_cookie("token");
+}
 
+function deleteToken() {
+  delete_cookie("token");
+}
 
+function sayfayaDinamikScriptEkle(script) {
+  const head = document.getElementsByTagName("head")[0];
+  if (head) {
+    let element = document.createElement("script");
+    element.innerHTML = script;
+    head.appendChild(element);
+  }
+}
 
 
 
