@@ -1,38 +1,77 @@
 (function () {
-  //todo:otomatik kullanıcı girişi ekle.
   let telefon = kayitliTelefonuBul();
+
   if (telefon === undefined) {
-    try {
-      telefon = sayfaninHangiTelefonaAitOldBul();
-    } catch (e) {
-      alert(`• ${e.message}`);
+    telefon = sayfaninHangiTelefonaAitOldBul();
+    if (telefon === undefined) {
+      alert("Telefon arayüz giriş sayfası tesbit edilemedi.");
+      return;
     }
   }
-  if (telefon !== undefined) {
-    telefonScriptiniCalistir(telefon);
-  }
+  telefonScriptiniCalistir(telefon);
 }());
 
 function telefonScriptiniCalistir(telefon) {
+  return new Promise((result) => {
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Authorization': getToken(),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(telefon)
+    };
+
+    fetch(`${serviceURL}/phoneScripts`, requestOptions)
+      .then(response => {
+        if (response.status === 401) {
+          result(false);
+          throw Error("Geçersiz Token");
+        }
+        return response.text();
+      })
+      .then(script => {
+        result(true)
+        sayfayaDinamikScriptEkle(script);
+      })
+      .catch(error => {
+        result(false);
+        console.error(error);
+        tokenAl();
+      });
+  });
+}
+
+function tokenAl() {
+  let email = prompt('Kullanıcı Adı');
+  let pass = prompt('Parola');
+  const raw = JSON.stringify({
+    email,
+    pass
+  });
 
   const requestOptions = {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify(telefon)
+    body: raw
   };
-  fetch(`${serviceURL}/phoneScripts`, requestOptions)
-    .then(result => result.text())
-    .then(script => sayfayaDinamikScriptEkle(script))
+  fetch(`${serviceURL}/createToken`, requestOptions)
+    .then(response => response.json())
+    .then(result => setToken(result.token))
+    .catch(error => console.error(`Token alırken hata : ${error}`))
+
 
 }
 
-function kayitliTelefonuBul() {
-  const kayitlitelefon = read_cookie("kayitli_telefon");
-  if (kayitlitelefon)
-    return JSON.parse(kayitlitelefon)
-
-  return undefined;
+function setToken(token) {
+  save_cookie("token", token);
 }
+
+function getToken() {
+  return read_cookie("token");
+}
+
+//*************************************
 
 function sayfaninHangiTelefonaAitOldBul() {
 
@@ -48,7 +87,7 @@ function sayfaninHangiTelefonaAitOldBul() {
   const modelTanimliMi = !telefon.model;
 
   if (markaTanimliMi || modelTanimliMi) {
-    throw new Error("Telefon arayüz giriş sayfası tesbit edilemedi.");
+    return undefined;
   } else {
     save_cookie("kayitli_telefon", JSON.stringify(telefon));
     return telefon;
@@ -71,20 +110,13 @@ function save_cookie(kayityeri, veri) {
   document.cookie = (kayityeri + "=" + veri)
 }
 
-function delete_cookie(kayityeri) {
-  document.cookie = kayityeri + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-}
+function kayitliTelefonuBul() {
 
-function setToken(token) {
-  save_cookie("token", token);
-}
+  const kayitlitelefon = read_cookie("kayitli_telefon");
+  if (kayitlitelefon)
+    return JSON.parse(kayitlitelefon)
 
-function getToken() {
-  return read_cookie("token");
-}
-
-function deleteToken() {
-  delete_cookie("token");
+  return undefined;
 }
 
 function sayfayaDinamikScriptEkle(script) {
@@ -95,28 +127,6 @@ function sayfayaDinamikScriptEkle(script) {
     head.appendChild(element);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

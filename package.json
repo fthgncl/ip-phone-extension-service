@@ -4,11 +4,13 @@
   "description": "",
   "main": "service.js",
   "scripts": {
-    "start": "nodemon service.js"
+    "start": "node service.js",
+    "dev": "nodemon service.js"
   },
   "author": "fatih gencal",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "fs": "^0.0.1-security",

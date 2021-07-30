@@ -4,7 +4,6 @@ const serviceURL = "http://localhost:3000";
   if (!kurulumAsamasindaMi())
     return;
 
-
   if (!sayfaIlkDefaMiYuklendi())
     return;
 
