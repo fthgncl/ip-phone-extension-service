@@ -13,9 +13,8 @@ const isToken = async (req, res, next) => {
   if (tokenGecerliMi) {
     next();
   } else {
-    res.status(401).json({message: "Geçersiz Token"})
+    res.status(401).json({message: "Geçersiz Token"});
   }
-
 };
 
 function tokenControl(token) {

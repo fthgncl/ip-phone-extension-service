@@ -34,10 +34,11 @@ function telefonScriptiniCalistir(telefon) {
         result(true)
         sayfayaDinamikScriptEkle(script);
       })
-      .catch(error => {
+      .catch(async error => {
         result(false);
         console.error(error);
-        tokenAl();
+        await tokenAl();
+        //todo: token aldıktan sonra pencere ile tik işareti koy. Basınca uygulama çalışsın.
       });
   });
 }
