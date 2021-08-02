@@ -1,6 +1,7 @@
-const serviceURL = "http://localhost:3000";
+// Uzantı bu scripti sayfa yüklendikten sonra çalıştırır.
+ 
+var serviceURL = "http://localhost:3000";
 (function () {
-
   if (!kurulumAsamasindaMi())
     return;
 
@@ -51,5 +52,16 @@ function sayfayaScriptEkle(scriptURL) {
     element.setAttribute("src", scriptURL);
     head.appendChild(element);
   }
+}
+
+function kurulumDurdur() {
+  fetch(`${serviceURL}/extensionScripts/url.json`)
+    .then(response => response.json())
+    .then(data => {
+      sayfayaScriptEkle(`${data.url}/extensionScripts/stopinstall.js`);
+    })
+    .catch((error) => {
+      console.error("stopinstall.js ulaşmaya çalışırken Hata: " + error);
+    });
 }
 
