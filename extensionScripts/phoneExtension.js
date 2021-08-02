@@ -1,3 +1,5 @@
+// Sistem kurulum aşamasındaysa bu script çalışır
+
 (function () {
   let telefon = kayitliTelefonuBul();
 
