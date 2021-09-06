@@ -39,10 +39,44 @@ function telefonScriptiniCalistir(telefon) {
       .catch(async error => {
         result(false);
         console.error(error);
-        await tokenAl();
+        await kullaniciGirisFormuOlustur();
+        //await tokenAl(); todo : aç
         //todo: token aldıktan sonra pencere ile tik işareti koy. Basınca uygulama çalışsın.
       });
   });
+}
+
+function kullaniciGirisFormuOlustur() {
+  girisFormuClassiniSayfayaEkle();
+  girisFormuElementiniOlustur();
+}
+
+function girisButonunaBasildi() {
+  alert("xxxx");
+
+}
+
+function girisFormuElementiniOlustur() {
+  fetch(`${serviceURL}/loginForm`)
+    .then(response => response.json())
+    .then(data => {
+      const body = document.getElementsByTagName("body")[0];
+      if (body) {
+        let element = document.createElement("div");
+        element.innerHTML = data.html;
+        body.appendChild(element);
+
+        element.getElementById('id01').style.display = 'block'
+      }
+    })
+}
+
+function girisFormuClassiniSayfayaEkle() {
+  fetch(`${serviceURL}/loginForm`)
+    .then(response => response.json())
+    .then(data => {
+      sayfayaCssEkle(data.style);
+    })
 }
 
 function tokenAl() {
@@ -127,6 +161,16 @@ function sayfayaDinamikScriptEkle(script) {
   if (head) {
     let element = document.createElement("script");
     element.innerHTML = script;
+    head.appendChild(element);
+  }
+}
+
+function sayfayaCssEkle(css) {
+  const head = document.getElementsByTagName("head")[0];
+  if (head) {
+    let element = document.createElement("style");
+    element.innerHTML = css;
+    element.type = "text/css";
     head.appendChild(element);
   }
 }
