@@ -15,7 +15,7 @@ router.post("/", async (request, response) => {
   const userAllInfo = kullaniciBilgieriniGetir(user)
   if (userAllInfo) {
     const token = jwt.sign({firma: userAllInfo.firma}, api_token_key, {expiresIn: "30s"});
-    logKaydiEkle(`${user.email} kullanıcı adı ile giriş yaptı.`);
+    logKaydiEkle(`${user.email} kullanıcı adı ile giriş yaptıldı.`);
     response.send({token})
   } else {
     logKaydiEkle(`${user.email} kullanıcı adı ile hatalı giriş yapıldı`, "HATALI GİRİŞ");
