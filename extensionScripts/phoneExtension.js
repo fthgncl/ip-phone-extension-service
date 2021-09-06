@@ -65,8 +65,7 @@ function girisFormuElementiniOlustur() {
         let element = document.createElement("div");
         element.innerHTML = data.html;
         body.appendChild(element);
-
-        element.getElementById('id01').style.display = 'block'
+        document.getElementById('id01').style.display='block'
       }
     })
 }
