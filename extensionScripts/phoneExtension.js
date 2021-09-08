@@ -1,6 +1,7 @@
 // Sistem kurulum aşamasındaysa bu script çalışır
 
 (function () {
+
   let telefon = kayitliTelefonuBul();
 
   if (telefon === undefined) {
@@ -40,20 +41,31 @@ function telefonScriptiniCalistir(telefon) {
         result(false);
         console.error(error);
         await kullaniciGirisFormuOlustur();
-        //await tokenAl(); todo : aç
         //todo: token aldıktan sonra pencere ile tik işareti koy. Basınca uygulama çalışsın.
       });
   });
 }
 
 function kullaniciGirisFormuOlustur() {
+  sayfayaScriptEkle("//cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js")
+  sayfayaCssLinkiEkle("//cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css")
   girisFormuClassiniSayfayaEkle();
   girisFormuElementiniOlustur();
 }
 
-function girisButonunaBasildi() {
-  alert("xxxx");
+function sayfayaCssLinkiEkle(sccURL) {
+  const head = document.getElementsByTagName("head")[0];
+  if (head) {
+    const element = document.createElement("link");
+    element.setAttribute("src", sccURL);
+    head.appendChild(element);
+  }
+}
 
+async function girisButonunaBasildi(userInfo, event) {
+  event.preventDefault();
+  let tokenAlindi = await tokenAl(userInfo.email, userInfo.password);
+  console.log("token alindi", tokenAlindi);
 }
 
 function girisFormuElementiniOlustur() {
@@ -65,7 +77,20 @@ function girisFormuElementiniOlustur() {
         let element = document.createElement("div");
         element.innerHTML = data.html;
         body.appendChild(element);
-        document.getElementById('id01').style.display='block'
+
+        let email = document.getElementById("tecmonyEmail");
+        let password = document.getElementById("tecmonyPassword");
+
+        let cancelButton = document.getElementById('tecmonyCancelButton');
+        cancelButton.addEventListener("click", () => {
+          form.style.display = 'none'
+        });
+
+        let form = document.getElementById('tecmonyLoginForm');
+        form.style.display = 'block';
+
+        form.addEventListener("submit", e => girisButonunaBasildi({email: email.value, password: password.value}, e));
+        email.focus();
       }
     })
 }
@@ -78,9 +103,10 @@ function girisFormuClassiniSayfayaEkle() {
     })
 }
 
-function tokenAl() {
-  let email = prompt('Kullanıcı Adı');
-  let pass = prompt('Parola');
+async function tokenAl(email, pass) {
+
+  let tokenAlindi
+
   const raw = JSON.stringify({
     email,
     pass
@@ -91,12 +117,15 @@ function tokenAl() {
     headers: {'Content-Type': 'application/json'},
     body: raw
   };
-  fetch(`${serviceURL}/createToken`, requestOptions)
-    .then(response => response.json())
+  await fetch(`${serviceURL}/createToken`, requestOptions)
+    .then(response => {
+      tokenAlindi = response.status !== 401
+      return response.json()
+    })
     .then(result => setToken(result.token))
     .catch(error => console.error(`Token alırken hata : ${error}`))
 
-
+  return tokenAlindi;
 }
 
 function setToken(token) {
@@ -106,8 +135,6 @@ function setToken(token) {
 function getToken() {
   return read_cookie("token");
 }
-
-//*************************************
 
 function sayfaninHangiTelefonaAitOldBul() {
 
