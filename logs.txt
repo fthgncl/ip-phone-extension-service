@@ -1,15 +1,6 @@
 
-[Tarih : 10/9/2021 - 6:0] 
+[Tarih : 10/9/2021 - 23:1] 
 1 kullanıcı adı ile giriş yapıldı.
 
-[Tarih : 10/9/2021 - 6:0] 
-1 kullanıcı adı ile giriş yapıldı.
-
-[Tarih : 10/9/2021 - 6:1] 
-1 kullanıcı adı ile giriş yapıldı.
-
-[Tarih : 10/9/2021 - 6:2] 
-1 kullanıcı adı ile giriş yapıldı.
-
-[Tarih : 10/9/2021 - 6:4] 
+[Tarih : 10/9/2021 - 23:12] 
 1 kullanıcı adı ile giriş yapıldı.

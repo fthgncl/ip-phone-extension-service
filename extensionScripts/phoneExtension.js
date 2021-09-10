@@ -14,27 +14,27 @@
 
   telefonScriptiniCalistir(telefon);
 }());
-function telefonScriptBaslatilsinMiSor(){
-  //todo:burada kaldım.
-  Swal.fire({
-    title: '<strong>HTML <u>example</u></strong>',
+async function telefonScriptBaslatilsinMiSor(){
+
+  const question = await Swal.fire({
+    title: '<strong>Kurulumu Başlat</strong>',
     icon: 'question',
-    html:
-        'You can use <b>bold text</b>, ' +
-        '<a href="//sweetalert2.github.io">links</a> ' +
-        'and other HTML tags',
+    html: 'Bu işlemi gerçekleştirmek istediğinize emin misiniz ?',
     showCloseButton: true,
     showCancelButton: true,
-    focusConfirm: false,
-    confirmButtonText:
-        '<i class="fa fa-thumbs-up"></i> Great!',
-    confirmButtonAriaLabel: 'Thumbs up, great!',
-    cancelButtonText:
-        '<i class="fa fa-thumbs-down"></i>',
-    cancelButtonAriaLabel: 'Thumbs down'
+    focusConfirm: true,
+    confirmButtonText:'Evet',
+    cancelButtonText: 'Hayır , kurulumu durdur'
   })
 
+  if ( !question.value ){
+    kurulumDurdur();
+  }
+
+  return question.value;
+
 }
+
 function telefonScriptiniCalistir(telefon) {
   return new Promise((result) => {
     const requestOptions = {
@@ -71,34 +71,34 @@ function telefonScriptiniCalistir(telefon) {
 }
 async function kullaniciGirisFormuOlustur(){
   const { value: formValues } = await Swal.fire({
-    title: 'Giriş Yap',
+    title: 'Oturum Aç',
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Giriş Yap',
+    cancelButtonText: 'İptal',
     html:
         '<input id="email" placeholder="Email" class="swal2-input">' +
         '<input id="pass" placeholder="Parola" type="password" class="swal2-input">',
-    focusConfirm: false,
-    preConfirm: () => {
-      return [
-        document.getElementById('email').value,
-        document.getElementById('pass').value
-      ]
+    preConfirm: async () =>
+    {
+        let girisBasariliMi = await tokenAl(document.getElementById('email').value, document.getElementById('pass').value);
+        girisYapButonunaBasildi(girisBasariliMi);
     }
-  })
+  });
+}
 
-  if (formValues) {
-    let tokenAlindi = await tokenAl(formValues[0],formValues[1]);
-    Swal.fire({
-      position: 'top-end',
-      icon: tokenAlindi?'success':'error',
-      title: tokenAlindi?'Giriş Yapıldı':'Hatalı Giriş',
-      showConfirmButton: false,
-      timer: 1500
-    })
-  }
+function girisYapButonunaBasildi(girisBasariliMi){
+      Swal.fire({
+        icon: girisBasariliMi?'success':'error',
+        title: girisBasariliMi?'Giriş Yapıldı':'Hatalı Giriş',
+        showConfirmButton: false,
+          timer: 1500
+      })
 }
 
 async function tokenAl(email, pass) {
 
-  let tokenAlindi
+  let tokenAlindi = false;
 
   const raw = JSON.stringify({
     email,
@@ -112,7 +112,7 @@ async function tokenAl(email, pass) {
   };
   await fetch(`${serviceURL}/createToken`, requestOptions)
     .then(response => {
-      tokenAlindi = response.status !== 401
+      tokenAlindi = response.status === 200
       return response.json()
     })
     .then(result => setToken(result.token))
