@@ -11,9 +11,30 @@
       return;
     }
   }
+
   telefonScriptiniCalistir(telefon);
 }());
+function telefonScriptBaslatilsinMiSor(){
+  //todo:burada kaldım.
+  Swal.fire({
+    title: '<strong>HTML <u>example</u></strong>',
+    icon: 'question',
+    html:
+        'You can use <b>bold text</b>, ' +
+        '<a href="//sweetalert2.github.io">links</a> ' +
+        'and other HTML tags',
+    showCloseButton: true,
+    showCancelButton: true,
+    focusConfirm: false,
+    confirmButtonText:
+        '<i class="fa fa-thumbs-up"></i> Great!',
+    confirmButtonAriaLabel: 'Thumbs up, great!',
+    cancelButtonText:
+        '<i class="fa fa-thumbs-down"></i>',
+    cancelButtonAriaLabel: 'Thumbs down'
+  })
 
+}
 function telefonScriptiniCalistir(telefon) {
   return new Promise((result) => {
     const requestOptions = {
@@ -33,29 +54,22 @@ function telefonScriptiniCalistir(telefon) {
         }
         return response.text();
       })
-      .then(script => {
-        result(true)
-        let scriptElement = sayfayaElementEkle("script",pageHead);
-        scriptElement.innerHTML = script;
+      .then(async script => {
+        let kullaniciEminMi = await telefonScriptBaslatilsinMiSor();
+        if ( kullaniciEminMi ) {
+          result(true)
+          let scriptElement = sayfayaElementEkle("script", pageHead);
+          scriptElement.innerHTML = script;
+        }
       })
       .catch(async error => {
         result(false);
         console.error(error);
         await kullaniciGirisFormuOlustur();
-        //todo: token aldıktan sonra pencere ile tik işareti koy. Basınca uygulama çalışsın.
       });
   });
 }
-
-function kullaniciGirisFormuOlustur() {
-  sweetAlerEkle();
-  setTimeout(function(){ girisFormuOlustur(); }, 2000); //todo: bunun yerine script ekledikten sonra çalıştır.
-}
-function sweetAlerEkle(){
-  let scriptElement = sayfayaElementEkle("script",pageHead)
-  scriptElement.src = "https://cdn.jsdelivr.net/npm/sweetalert2@11";
-}
-async function girisFormuOlustur(){
+async function kullaniciGirisFormuOlustur(){
   const { value: formValues } = await Swal.fire({
     title: 'Giriş Yap',
     html:

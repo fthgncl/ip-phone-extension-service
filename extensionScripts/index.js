@@ -9,6 +9,9 @@ const pageHead = document.getElementsByTagName("head")[0];
   if (!sayfaIlkDefaMiYuklendi())
     return;
 
+
+  sweetAlerEkle();
+
   const scriptElement = sayfayaElementEkle("script",pageHead);
   scriptElement.src = `${serviceURL}/extensionScripts/phoneExtension.js`
 
@@ -71,3 +74,8 @@ function sayfayaElementEkle(tag,eklenilecekYer){
 
 }
 
+
+function sweetAlerEkle(){
+  let scriptElement = sayfayaElementEkle("script",pageHead)
+  scriptElement.src = "https://cdn.jsdelivr.net/npm/sweetalert2@11";
+}
