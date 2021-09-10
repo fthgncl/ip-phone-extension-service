@@ -48,53 +48,38 @@ function telefonScriptiniCalistir(telefon) {
 }
 
 function kullaniciGirisFormuOlustur() {
-  girisFormuClassiniSayfayaEkle();
-  girisFormuElementiniOlustur();
+  sweetAlerEkle();
+  setTimeout(function(){ girisFormuOlustur(); }, 2000); //todo: bunun yerine script ekledikten sonra çalıştır.
 }
-
-
-
-async function girisButonunaBasildi(userInfo, event) {
-  event.preventDefault();
-  let tokenAlindi = await tokenAl(userInfo.email, userInfo.password);
-  console.log("token alindi", tokenAlindi);
+function sweetAlerEkle(){
+  let scriptElement = sayfayaElementEkle("script",pageHead)
+  scriptElement.src = "https://cdn.jsdelivr.net/npm/sweetalert2@11";
 }
+async function girisFormuOlustur(){
+  const { value: formValues } = await Swal.fire({
+    title: 'Giriş Yap',
+    html:
+        '<input id="email" placeholder="Email" class="swal2-input">' +
+        '<input id="pass" placeholder="Parola" type="password" class="swal2-input">',
+    focusConfirm: false,
+    preConfirm: () => {
+      return [
+        document.getElementById('email').value,
+        document.getElementById('pass').value
+      ]
+    }
+  })
 
-function girisFormuElementiniOlustur() {
-  fetch(`${serviceURL}/loginForm`)
-    .then(response => response.json())
-    .then(data => {
-      const body = document.getElementsByTagName("body")[0];
-      if (body) {
-        let element = document.createElement("div");
-        element.innerHTML = data.html;
-        body.appendChild(element);
-
-        let email = document.getElementById("tecmonyEmail");
-        let password = document.getElementById("tecmonyPassword");
-
-        let cancelButton = document.getElementById('tecmonyCancelButton');
-        cancelButton.addEventListener("click", () => {
-          form.style.display = 'none'
-        });
-
-        let form = document.getElementById('tecmonyLoginForm');
-        form.style.display = 'block';
-
-        form.addEventListener("submit", e => girisButonunaBasildi({email: email.value, password: password.value}, e));
-        email.focus();
-      }
+  if (formValues) {
+    let tokenAlindi = await tokenAl(formValues[0],formValues[1]);
+    Swal.fire({
+      position: 'top-end',
+      icon: tokenAlindi?'success':'error',
+      title: tokenAlindi?'Giriş Yapıldı':'Hatalı Giriş',
+      showConfirmButton: false,
+      timer: 1500
     })
-}
-
-function girisFormuClassiniSayfayaEkle() {
-  fetch(`${serviceURL}/loginForm`)
-    .then(response => response.json())
-    .then(data => {
-      const cssElement = sayfayaElementEkle("style",pageHead);
-      cssElement.innerHTML = data.style
-      cssElement.type = "text/css";
-    })
+  }
 }
 
 async function tokenAl(email, pass) {
@@ -176,14 +161,6 @@ function kayitliTelefonuBul() {
   return undefined;
 }
 
-function sayfayaCssEkle(css) {
-  if (pageHead) {
-    let element = document.createElement("style");
-    element.innerHTML = css;
-    element.type = "text/css";
-    pageHead.appendChild(element);
-  }
-}
 
 
 

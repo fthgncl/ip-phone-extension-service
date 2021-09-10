@@ -8,8 +8,7 @@ const files = {
   createToken: require('./routing/createToken'),
   tokenControl: require('./routing/tokenControl'),
   extensionScripts: require('./routing/extensionScriptsRouter'),
-  phoneScripts: require('./routing/phoneScripts'),
-  loginForm: require('./routing/loginForm')
+  phoneScripts: require('./routing/phoneScripts')
 }
 app.use(bodyParser.json());
 app.use(cors({origin: '*'}));
@@ -18,7 +17,6 @@ app.use(files.tokenControl);
 app.use("/extensionScripts", files.extensionScripts);
 app.use("/phoneScripts", files.phoneScripts);
 app.use("/createToken", files.createToken);
-app.use("/loginForm", files.loginForm);
 
 app.listen(3000);
 
