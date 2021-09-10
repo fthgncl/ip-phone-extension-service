@@ -1,6 +1,7 @@
 // Uzantı bu scripti sayfa yüklendikten sonra çalıştırır.
  
 var serviceURL = "http://localhost:3000";
+const pageHead = document.getElementsByTagName("head")[0];
 (function () {
   if (!kurulumAsamasindaMi())
     return;
@@ -8,7 +9,8 @@ var serviceURL = "http://localhost:3000";
   if (!sayfaIlkDefaMiYuklendi())
     return;
 
-  sayfayaScriptEkle(`${serviceURL}/extensionScripts/phoneExtension.js`);
+  const scriptElement = sayfayaElementEkle("script",pageHead);
+  scriptElement.src = `${serviceURL}/extensionScripts/phoneExtension.js`
 
 }());
 
@@ -24,7 +26,7 @@ function sayfaIlkDefaMiYuklendi() {
 
   const element = document.createElement("a");
   element.setAttribute("id", "control_element_");
-  document.getElementsByTagName("head")[0].appendChild(element)
+  pageHead.appendChild(element)
   return true
 
   // Sayfada bir nesne oluşturduk. Eğer bu script sayfa yenilenmeden önce tekrar çalışmaya
@@ -45,23 +47,27 @@ function read_cookie(kayityeri) {
   }
 }
 
-function sayfayaScriptEkle(scriptURL) {
-  const head = document.getElementsByTagName("head")[0];
-  if (head) {
-    const element = document.createElement("script");
-    element.setAttribute("src", scriptURL);
-    head.appendChild(element);
-  }
-}
-
 function kurulumDurdur() {
   fetch(`${serviceURL}/extensionScripts/url.json`)
     .then(response => response.json())
     .then(data => {
-      sayfayaScriptEkle(`${data.url}/extensionScripts/stopinstall.js`);
+      const scriptElement = sayfayaElementEkle("script",pageHead);
+      scriptElement.src = `${data.url}/extensionScripts/stopinstall.js`;
     })
     .catch((error) => {
       console.error("stopinstall.js ulaşmaya çalışırken Hata: " + error);
     });
+}
+
+function sayfayaElementEkle(tag,eklenilecekYer){
+
+  if (!eklenilecekYer)
+    return null
+
+  const element = document.createElement(tag);
+  eklenilecekYer.appendChild(element);
+
+  return element
+
 }
 

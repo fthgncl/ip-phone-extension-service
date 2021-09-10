@@ -35,7 +35,8 @@ function telefonScriptiniCalistir(telefon) {
       })
       .then(script => {
         result(true)
-        sayfayaDinamikScriptEkle(script);
+        let scriptElement = sayfayaElementEkle("script",pageHead);
+        scriptElement.innerHTML = script;
       })
       .catch(async error => {
         result(false);
@@ -47,20 +48,11 @@ function telefonScriptiniCalistir(telefon) {
 }
 
 function kullaniciGirisFormuOlustur() {
-  sayfayaScriptEkle("//cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js")
-  sayfayaCssLinkiEkle("//cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css")
   girisFormuClassiniSayfayaEkle();
   girisFormuElementiniOlustur();
 }
 
-function sayfayaCssLinkiEkle(sccURL) {
-  const head = document.getElementsByTagName("head")[0];
-  if (head) {
-    const element = document.createElement("link");
-    element.setAttribute("src", sccURL);
-    head.appendChild(element);
-  }
-}
+
 
 async function girisButonunaBasildi(userInfo, event) {
   event.preventDefault();
@@ -99,7 +91,9 @@ function girisFormuClassiniSayfayaEkle() {
   fetch(`${serviceURL}/loginForm`)
     .then(response => response.json())
     .then(data => {
-      sayfayaCssEkle(data.style);
+      const cssElement = sayfayaElementEkle("style",pageHead);
+      cssElement.innerHTML = data.style
+      cssElement.type = "text/css";
     })
 }
 
@@ -182,22 +176,12 @@ function kayitliTelefonuBul() {
   return undefined;
 }
 
-function sayfayaDinamikScriptEkle(script) {
-  const head = document.getElementsByTagName("head")[0];
-  if (head) {
-    let element = document.createElement("script");
-    element.innerHTML = script;
-    head.appendChild(element);
-  }
-}
-
 function sayfayaCssEkle(css) {
-  const head = document.getElementsByTagName("head")[0];
-  if (head) {
+  if (pageHead) {
     let element = document.createElement("style");
     element.innerHTML = css;
     element.type = "text/css";
-    head.appendChild(element);
+    pageHead.appendChild(element);
   }
 }
 

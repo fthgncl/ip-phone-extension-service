@@ -241,3 +241,9 @@ gencal.fatih61@gmail.com kullanıcı adı ile hatalı giriş yapıldı
 
 [Tarih : 8/9/2021 - 18:6] 
 1 kullanıcı adı ile giriş yaptıldı.
+
+[Tarih : 10/9/2021 - 4:48] 
+1 kullanıcı adı ile giriş yaptıldı.
+
+[Tarih : 10/9/2021 - 4:57] 
+1 kullanıcı adı ile giriş yaptıldı.
